@@ -40,6 +40,23 @@ func main() {
 		return
 	}
 
+	var enemies []basicEnemy
+
+	for i := 0; i < 5; i++ {
+		for j := 0; j < 3; j++ {
+			x := float64(i)/5*screenWidth + (basicEnemySize / 2.0)
+			y := float64(j) * (basicEnemySize + 20)
+
+			enemy, err := newBasicEnemy(renderer, x, y)
+			if err != nil {
+				fmt.Println("initializing enemy error", err)
+				return
+			}
+
+			enemies = append(enemies, enemy)
+		}
+	}
+
 	for {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) {
@@ -52,6 +69,11 @@ func main() {
 		renderer.Clear()
 
 		p.draw(renderer)
+		p.update()
+
+		for _, enemy := range enemies {
+			enemy.draw(renderer)
+		}
 
 		renderer.Present()
 	}
