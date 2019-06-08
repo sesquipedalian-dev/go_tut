@@ -1,38 +1,33 @@
 package main
 
 import (
-	"fmt"
+	"math"
+	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-const playerSpeed = 1.0
-const textureHeight = 120
-const textureWidth = 120
+const (
+	playerSpeed        = 1.0
+	textureHeight      = 120
+	textureWidth       = 120
+	playerShotCooldown = time.Millisecond * 250
+)
 
 type player struct {
-	tex  *sdl.Texture
-	x, y float64
+	tex      *sdl.Texture
+	x, y     float64
+	lastShot time.Time
 }
 
-func newPlayer(renderer *sdl.Renderer) (p player, err error) {
-	// loads BMP only
-	img, err := sdl.LoadBMP("sprites/player.bmp")
-	if err != nil {
-		return player{}, fmt.Errorf("can't load sprite: %v", err)
-	}
-	defer img.Free()
-
-	p.tex, err = renderer.CreateTextureFromSurface(img)
-	if err != nil {
-		return player{}, fmt.Errorf("can't create player texture: %v", err)
-	}
+func newPlayer(renderer *sdl.Renderer) (p player) {
+	p.tex = textureFromBMP(renderer, "sprites/player.bmp")
 
 	// initial position
 	p.x = screenWidth / 2                      // centered
 	p.y = screenHeight - (1.5 * textureHeight) // 1.5 player lengths from the bottom
 
-	return p, nil
+	return p
 }
 
 func (p *player) draw(renderer *sdl.Renderer) {
@@ -62,6 +57,24 @@ func (p *player) update() {
 		dy = -playerSpeed
 	}
 
-	p.x = p.x + dx
-	p.y = p.y + dy
+	// move player by dx and dy, constrained by screen size
+	p.x = math.Max(math.Min(p.x+dx, screenWidth-textureWidth/2), 0+textureWidth/2)
+	p.y = math.Max(math.Min(p.y+dy, screenHeight-textureHeight/2), 0+textureHeight/2)
+
+	if keys[sdl.SCANCODE_SPACE] == 1 {
+		if time.Since(p.lastShot) >= playerShotCooldown {
+			p.shoot(0)
+			p.shoot(2)
+
+			p.lastShot = time.Now()
+		}
+	}
+}
+
+func (p *player) shoot(rel int32) {
+	if bul, ok := bulletFromPool(); ok {
+		bul.x = p.x - textureWidth/2 + textureWidth/2*float64(rel)
+		bul.y = p.y - textureHeight/2
+		bul.angle = 270 * (math.Pi / 180)
+	}
 }
