@@ -19,49 +19,64 @@ const (
 	bulletSpeed = 0.15
 )
 
-func newBullet(renderer *sdl.Renderer) (bul bullet) {
-	bul.tex = textureFromBMP(renderer, "sprites/bullet.bmp")
+func newBullet(renderer *sdl.Renderer) *element {
+	bul := newElement()
+	bul.active = false
+
+	sr := newSpriteRenderer(bul, renderer, "sprites/bullet.bmp")
+	bul.addComponent(sr)
+
+	mover := newBulletMover(bul)
+	bul.addComponent(mover)
+
 	return bul
 }
 
-func (bul *bullet) draw(renderer *sdl.Renderer) {
-	if !bul.active {
-		return
-	}
-
-	x := bul.x - bulletSize/2
-	y := bul.y - bulletSize/2
-
-	renderer.Copy(bul.tex,
-		&sdl.Rect{X: 0, Y: 0, W: bulletSize, H: bulletSize},
-		&sdl.Rect{X: int32(x), Y: int32(y), W: bulletSize, H: bulletSize})
+type bulletMover struct {
+	speed     float64
+	angle     float64
+	container *element
 }
 
-func (bul *bullet) update() {
-	if !bul.active {
-		return
-	}
-
-	bul.x += bulletSpeed * math.Cos(bul.angle)
-	bul.y += bulletSpeed * math.Sin(bul.angle)
-
-	if bul.x > screenWidth || bul.x < 0 || bul.y > screenHeight || bul.y < 0 {
-		bul.active = false
+func newBulletMover(container *element) *bulletMover {
+	return &bulletMover{
+		container: container,
+		speed:     bulletSpeed,
 	}
 }
 
-var bulletPool []*bullet
+func (bul *bulletMover) onDraw(renderer *sdl.Renderer) error {
+	return nil
+}
+
+func (bul *bulletMover) onUpdate() error {
+	if !bul.container.active {
+		return nil
+	}
+
+	bul.container.position.x += bul.speed * math.Cos(bul.angle)
+	bul.container.position.y += bul.speed * math.Sin(bul.angle)
+
+	if bul.container.position.x > screenWidth || bul.container.position.x < 0 ||
+		bul.container.position.y > screenHeight || bul.container.position.y < 0 {
+		bul.container.active = false
+	}
+
+	return nil
+}
+
+var bulletPool []*element
 
 const bulletPoolSize = 30
 
 func initBulletPool(renderer *sdl.Renderer) {
 	for i := 0; i < bulletPoolSize; i++ {
 		bul := newBullet(renderer)
-		bulletPool = append(bulletPool, &bul)
+		bulletPool = append(bulletPool, bul)
 	}
 }
 
-func bulletFromPool() (*bullet, bool) {
+func bulletFromPool() (*element, bool) {
 	for _, bul := range bulletPool {
 		if !bul.active {
 			bul.active = true

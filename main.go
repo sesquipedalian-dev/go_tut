@@ -11,22 +11,6 @@ const (
 	screenHeight = 800
 )
 
-func textureFromBMP(renderer *sdl.Renderer, filename string) (tex *sdl.Texture) {
-	// loads BMP only
-	img, err := sdl.LoadBMP(filename)
-	if err != nil {
-		panic(fmt.Errorf("can't load sprite: %v", err))
-	}
-	defer img.Free()
-
-	tex, err = renderer.CreateTextureFromSurface(img)
-	if err != nil {
-		panic(fmt.Errorf("creating texture from %v %v", filename, err))
-	}
-
-	return tex
-}
-
 func main() {
 	fmt.Println("Hello, world!")
 	if err := sdl.Init(sdl.INIT_EVERYTHING); err != nil {
@@ -50,20 +34,15 @@ func main() {
 	}
 	defer renderer.Destroy()
 
-	p := newPlayer(renderer)
-
-	var enemies []basicEnemy
-
+	newPlayer(renderer)
 	initBulletPool(renderer)
 
 	for i := 0; i < 5; i++ {
 		for j := 0; j < 3; j++ {
-			x := float64(i)/5*screenWidth + (basicEnemySize / 2.0)
-			y := float64(j) * (basicEnemySize + 20)
+			x := float64(i)/5*screenWidth + (120 / 2.0)
+			y := float64(j) * (120 + 20)
 
-			enemy := newBasicEnemy(renderer, x, y)
-
-			enemies = append(enemies, enemy)
+			newBasicEnemy(renderer, vector{x: x, y: y})
 		}
 	}
 
@@ -78,16 +57,18 @@ func main() {
 		renderer.SetDrawColor(0, 0, 0, 255) // RGBA White
 		renderer.Clear()
 
-		p.draw(renderer)
-		p.update()
+		for _, elem := range elements {
+			err = elem.update()
+			if err != nil {
+				fmt.Printf("couldn't update elem %v", err)
+				return
+			}
 
-		for _, enemy := range enemies {
-			enemy.draw(renderer)
-		}
-
-		for _, bullet := range bulletPool {
-			bullet.update()
-			bullet.draw(renderer)
+			err = elem.draw(renderer)
+			if err != nil {
+				fmt.Printf("couldn't draw elem %v", err)
+				return
+			}
 		}
 
 		renderer.Present()
