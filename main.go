@@ -71,6 +71,12 @@ func main() {
 			}
 		}
 
+		err = checkCollisions()
+		if err != nil {
+			fmt.Printf("couldn't collide %v", err)
+			return
+		}
+
 		renderer.Present()
 	}
 }

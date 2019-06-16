@@ -22,12 +22,19 @@ const (
 func newBullet(renderer *sdl.Renderer) *element {
 	bul := newElement()
 	bul.active = false
+	bul.tag = "bullet"
 
 	sr := newSpriteRenderer(bul, renderer, "sprites/bullet.bmp")
 	bul.addComponent(sr)
 
 	mover := newBulletMover(bul)
 	bul.addComponent(mover)
+
+	col := circle{
+		center: bul.position,
+		radius: 13.,
+	}
+	bul.collisions = append(bul.collisions, col)
 
 	return bul
 }
@@ -43,6 +50,13 @@ func newBulletMover(container *element) *bulletMover {
 		container: container,
 		speed:     bulletSpeed,
 	}
+}
+
+func (bul *bulletMover) onCollision(other *element) error {
+
+	bul.container.active = false
+	//other.active = false
+	return nil
 }
 
 func (bul *bulletMover) onDraw(renderer *sdl.Renderer) error {
@@ -61,6 +75,8 @@ func (bul *bulletMover) onUpdate() error {
 		bul.container.position.y > screenHeight || bul.container.position.y < 0 {
 		bul.container.active = false
 	}
+
+	bul.container.collisions[0].center = bul.container.position
 
 	return nil
 }

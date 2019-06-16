@@ -14,6 +14,7 @@ type vector struct {
 type component interface {
 	onUpdate() error // TODO game time since last frame?
 	onDraw(renderer *sdl.Renderer) error
+	onCollision(other *element) error
 }
 
 type element struct {
@@ -21,6 +22,8 @@ type element struct {
 	rotation   float64
 	active     bool
 	components []component
+	collisions []circle
+	tag        string
 }
 
 func newElement() *element {
@@ -62,6 +65,21 @@ func (elem *element) draw(renderer *sdl.Renderer) error {
 
 	for _, comp := range elem.components {
 		err := comp.onDraw(renderer)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (elem *element) collide(other *element) error {
+	if !elem.active {
+		return nil
+	}
+
+	for _, comp := range elem.components {
+		err := comp.onCollision(other)
 		if err != nil {
 			return err
 		}

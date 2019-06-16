@@ -65,3 +65,8 @@ func (sr *spriteRenderer) onUpdate() error {
 	// do nothing
 	return nil
 }
+
+func (sr *spriteRenderer) onCollision(other *element) error {
+	// do nothing
+	return nil
+}

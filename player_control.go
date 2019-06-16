@@ -25,6 +25,10 @@ func (mover *keyboardMover) onDraw(renderer *sdl.Renderer) error {
 	return nil
 }
 
+func (mover *keyboardMover) onCollision(other *element) error {
+	return nil
+}
+
 func (mover *keyboardMover) onUpdate() error {
 	keys := sdl.GetKeyboardState()
 	var dx = 0.0
@@ -65,6 +69,10 @@ func newKeyboardShooter(container *element, cooldown time.Duration) *keyboardSho
 		cooldown:  cooldown,
 		sr:        container.getComponent(&spriteRenderer{}).(*spriteRenderer),
 	}
+}
+
+func (shooter *keyboardShooter) onCollision(other *element) error {
+	return nil
 }
 
 func (shooter *keyboardShooter) onUpdate() error {
