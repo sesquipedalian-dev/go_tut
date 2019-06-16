@@ -22,6 +22,7 @@ func (vul *vulnerableToBullets) onUpdate() error {
 func (vul *vulnerableToBullets) onCollision(other *element) error {
 	if other.tag == "bullet" {
 		vul.container.active = false
+		other.active = false
 	}
 	return nil
 }

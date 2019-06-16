@@ -32,7 +32,7 @@ func newBullet(renderer *sdl.Renderer) *element {
 
 	col := circle{
 		center: bul.position,
-		radius: 13.,
+		radius: 10.,
 	}
 	bul.collisions = append(bul.collisions, col)
 
@@ -53,9 +53,6 @@ func newBulletMover(container *element) *bulletMover {
 }
 
 func (bul *bulletMover) onCollision(other *element) error {
-
-	bul.container.active = false
-	//other.active = false
 	return nil
 }
 

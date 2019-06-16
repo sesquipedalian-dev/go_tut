@@ -77,6 +77,8 @@ func (elem *element) collide(other *element) error {
 	if !elem.active {
 		return nil
 	}
+	// fmt.Printf("Colliding %v at %v with %v at %v\n", elem.tag, elem.position,
+	// 	other.tag, other.position)
 
 	for _, comp := range elem.components {
 		err := comp.onCollision(other)

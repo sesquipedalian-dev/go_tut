@@ -17,6 +17,7 @@ const (
 func newPlayer(renderer *sdl.Renderer) *element {
 	player := newElement()
 
+	player.tag = "player"
 	player.position = vector{
 		x: screenWidth / 2,
 		y: screenHeight - (1.5 * textureHeight)}
