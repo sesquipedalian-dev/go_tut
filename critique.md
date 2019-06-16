@@ -14,5 +14,7 @@ Unity has a huge user base and support all over the internet, is free until you 
 ### Collision is all screwy
 I think adding collision as a base attribute of all entities in the ECS was a bad call.  All entities have a circle collider, so that's less flexible than having different components that allow e.g. BoxCollider, CircleCollider, etc.  Also, the colliders have their own position which always tracks the position of the entity, so why is it a separate value that has to be updated each frame instead of just referencing that position?  Another thing, the initial implementation in the video screwed up not colliding with unrelated entities; e.g. the player. 
 
-### Update time step (addressed in Ep 6)
+### Update time step
 This game engine does the rendering and update on every time step.  The way I've understood to do this is instead decouple those.  Update should take a 'time passed since last frame' to allow for varying frame rates, and one way to do draw / render is to lock it to an FPS (which you can intentionally slow down if things get too complex).  The way it's coded in the tutorial, each person's computer may process frames at a different speed so the 'speed' variables for moving entities are different for everyone. 
+
+This is addressed in episode 6, but the delta time between frames is a global variable instead of being passed into update. So that's just a little less clean. 
